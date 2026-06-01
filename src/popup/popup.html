@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=360, initial-scale=1.0">
+  <title>QianBao Web3 钱包</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ===== Welcome Page ===== -->
+    <div id="page-welcome" class="page welcome-page active">
+      <div class="welcome-bg-orb welcome-bg-orb-1"></div>
+      <div class="welcome-bg-orb welcome-bg-orb-2"></div>
+      <div class="welcome-logo">💎</div>
+      <h1 class="welcome-title">QianBao Web3</h1>
+      <p class="welcome-subtitle">安全、简洁的去中心化钱包<br>管理你的数字资产</p>
+      <div class="welcome-actions">
+        <button id="btn-create-wallet" class="btn btn-primary btn-full">创建新钱包</button>
+        <button id="btn-import-wallet" class="btn btn-secondary btn-full">导入已有钱包</button>
+      </div>
+    </div>
+
+    <!-- ===== Lock Screen ===== -->
+    <div id="page-lock" class="page lock-screen">
+      <div class="lock-icon">🔒</div>
+      <h2 class="lock-title">钱包已锁定</h2>
+      <p class="lock-subtitle">输入密码解锁你的钱包</p>
+      <div class="lock-form">
+        <input type="password" id="lock-password" class="input-field" placeholder="输入密码">
+        <button id="btn-unlock" class="btn btn-primary btn-full">解锁</button>
+      </div>
+    </div>
+
+    <!-- ===== Create Wallet Page ===== -->
+    <div id="page-create" class="page form-page">
+      <div class="page-header">
+        <button class="back-btn" data-back="welcome">←</button>
+        <h2 class="page-title">创建新钱包</h2>
+      </div>
+      <div class="form-content">
+        <div id="create-step-1">
+          <div class="input-group">
+            <label class="input-label">设置密码</label>
+            <input type="password" id="create-password" class="input-field" placeholder="至少 8 个字符">
+            <div class="password-strength">
+              <div class="password-strength-bar" id="pw-bar-1"></div>
+              <div class="password-strength-bar" id="pw-bar-2"></div>
+              <div class="password-strength-bar" id="pw-bar-3"></div>
+              <div class="password-strength-bar" id="pw-bar-4"></div>
+            </div>
+          </div>
+          <div class="input-group" style="margin-top: 16px;">
+            <label class="input-label">确认密码</label>
+            <input type="password" id="create-password-confirm" class="input-field" placeholder="再次输入密码">
+          </div>
+        </div>
+        <div id="create-step-2" style="display:none;">
+          <div class="mnemonic-warning">
+            <span class="mnemonic-warning-icon">⚠️</span>
+            <span>请务必备份以下助记词！这是恢复钱包的唯一方式。请勿截图或分享给任何人。</span>
+          </div>
+          <div id="mnemonic-display" class="mnemonic-grid" style="margin-top: 16px;"></div>
+          <button id="btn-copy-mnemonic" class="btn btn-secondary btn-full btn-sm" style="margin-top: 12px;">📋 复制助记词</button>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button id="btn-create-next" class="btn btn-primary btn-full">下一步</button>
+        <button id="btn-create-done" class="btn btn-primary btn-full" style="display:none;">我已备份，进入钱包</button>
+      </div>
+    </div>
+
+    <!-- ===== Import Wallet Page ===== -->
+    <div id="page-import" class="page form-page">
+      <div class="page-header">
+        <button class="back-btn" data-back="welcome">←</button>
+        <h2 class="page-title">导入钱包</h2>
+      </div>
+      <div class="form-content">
+        <div class="input-group">
+          <label class="input-label">助记词</label>
+          <textarea id="import-mnemonic" class="input-field" placeholder="输入 12 或 24 个单词，以空格分隔" rows="4"></textarea>
+          <span class="input-hint">支持 12 或 24 词的 BIP-39 助记词</span>
+        </div>
+        <div class="input-group">
+          <label class="input-label">设置密码</label>
+          <input type="password" id="import-password" class="input-field" placeholder="至少 8 个字符">
+        </div>
+        <div class="input-group">
+          <label class="input-label">确认密码</label>
+          <input type="password" id="import-password-confirm" class="input-field" placeholder="再次输入密码">
+        </div>
+      </div>
+      <div class="form-footer">
+        <button id="btn-import-confirm" class="btn btn-primary btn-full">导入钱包</button>
+      </div>
+    </div>
+
+    <!-- ===== Dashboard Page ===== -->
+    <div id="page-dashboard" class="page dashboard">
+      <div class="header">
+        <div class="header-logo">
+          <div class="header-logo-icon">💎</div>
+          <span class="header-logo-text">QianBao</span>
+        </div>
+        <div class="header-actions">
+          <div class="network-selector" id="network-selector">
+            <span class="network-dot"></span>
+            <span id="network-name">Ethereum</span>
+            <span>▾</span>
+          </div>
+          <button class="header-btn" id="btn-settings" title="设置">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Network Dropdown -->
+      <div class="network-dropdown" id="network-dropdown"></div>
+
+      <div class="dashboard-content">
+        <!-- Account Card -->
+        <div class="account-card">
+          <div class="account-address">
+            <div class="account-avatar" id="account-avatar">1</div>
+            <div class="account-info">
+              <div class="account-name" id="account-name">账户 1</div>
+              <div class="account-addr" id="account-address" title="点击复制">0x0000...0000</div>
+            </div>
+            <button class="header-btn" id="btn-switch-account" title="切换账户">👤</button>
+          </div>
+          <div class="balance-display">
+            <div>
+              <span class="balance-amount" id="balance-amount">0.0000</span>
+              <span class="balance-symbol">ETH</span>
+            </div>
+            <div class="balance-fiat" id="balance-fiat">≈ $0.00</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <div class="action-btn" id="btn-send">
+            <div class="action-btn-icon">↑</div>
+            <span class="action-btn-text">发送</span>
+          </div>
+          <div class="action-btn" id="btn-receive">
+            <div class="action-btn-icon">↓</div>
+            <span class="action-btn-text">接收</span>
+          </div>
+          <div class="action-btn" id="btn-refresh">
+            <div class="action-btn-icon">🔄</div>
+            <span class="action-btn-text">刷新</span>
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="section-title">最近活动</div>
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <div class="empty-state-text">暂无交易记录</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Send Page ===== -->
+    <div id="page-send" class="page form-page">
+      <div class="page-header">
+        <button class="back-btn" data-back="dashboard">←</button>
+        <h2 class="page-title">发送 ETH</h2>
+      </div>
+      <div class="send-form">
+        <div class="input-group">
+          <label class="input-label">收款地址</label>
+          <input type="text" id="send-to" class="input-field" placeholder="0x...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">金额 (ETH)</label>
+          <input type="number" id="send-amount" class="input-field" placeholder="0.0" step="0.0001" min="0">
+        </div>
+        <div class="gas-info">
+          <span class="gas-label">预估 Gas</span>
+          <span class="gas-value" id="gas-estimate">-- Gwei</span>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button id="btn-send-confirm" class="btn btn-primary btn-full">确认发送</button>
+      </div>
+    </div>
+
+    <!-- ===== Settings Page ===== -->
+    <div id="page-settings" class="page form-page">
+      <div class="page-header">
+        <button class="back-btn" data-back="dashboard">←</button>
+        <h2 class="page-title">设置</h2>
+      </div>
+      <div class="form-content">
+        <div class="settings-list">
+          <div class="settings-item" id="settings-add-account">
+            <div class="settings-item-left">
+              <div class="settings-item-icon">➕</div>
+              <div>
+                <div class="settings-item-text">添加账户</div>
+                <div class="settings-item-desc">派生新的 HD 账户</div>
+              </div>
+            </div>
+            <span class="settings-item-arrow">›</span>
+          </div>
+          <div class="settings-item" id="settings-export">
+            <div class="settings-item-left">
+              <div class="settings-item-icon">🔑</div>
+              <div>
+                <div class="settings-item-text">导出助记词</div>
+                <div class="settings-item-desc">查看和备份你的助记词</div>
+              </div>
+            </div>
+            <span class="settings-item-arrow">›</span>
+          </div>
+          <div class="settings-item" id="settings-connected">
+            <div class="settings-item-left">
+              <div class="settings-item-icon">🔗</div>
+              <div>
+                <div class="settings-item-text">已连接的网站</div>
+                <div class="settings-item-desc">管理 dApp 连接</div>
+              </div>
+            </div>
+            <span class="settings-item-arrow">›</span>
+          </div>
+          <div class="settings-item danger" id="settings-lock">
+            <div class="settings-item-left">
+              <div class="settings-item-icon">🔒</div>
+              <div>
+                <div class="settings-item-text">锁定钱包</div>
+              </div>
+            </div>
+            <span class="settings-item-arrow">›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Approve Page ===== -->
+    <div id="page-approve" class="page approve-page">
+      <div class="approve-header">
+        <div class="approve-origin" id="approve-origin">
+          <span>🌐</span>
+          <span id="approve-origin-text">example.com</span>
+        </div>
+        <h2 class="approve-title" id="approve-title">连接请求</h2>
+      </div>
+      <div class="approve-content" id="approve-content">
+        <div class="approve-detail">
+          <div class="approve-detail-label">请求</div>
+          <div class="approve-detail-value" id="approve-detail-text">此网站请求连接你的钱包</div>
+        </div>
+      </div>
+      <div class="approve-actions">
+        <button id="btn-approve-reject" class="btn btn-secondary">拒绝</button>
+        <button id="btn-approve-confirm" class="btn btn-primary">确认</button>
+      </div>
+    </div>
+
+    <!-- ===== Account Selector Overlay ===== -->
+    <div class="account-selector-overlay" id="account-selector-overlay">
+      <div class="account-selector-panel">
+        <div class="account-selector-title">
+          <span>切换账户</span>
+          <button class="back-btn" id="btn-close-account-selector">✕</button>
+        </div>
+        <div class="account-selector-list" id="account-selector-list"></div>
+        <button id="btn-add-account-in-selector" class="btn btn-secondary btn-full btn-sm">+ 添加新账户</button>
+      </div>
+    </div>
+
+    <!-- ===== Modal ===== -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal">
+        <h3 class="modal-title" id="modal-title">提示</h3>
+        <p class="modal-text" id="modal-text">确认操作？</p>
+        <div class="input-group" id="modal-input-group" style="display:none; margin-bottom: 16px;">
+          <input type="password" id="modal-password" class="input-field" placeholder="输入密码验证">
+        </div>
+        <div class="modal-actions">
+          <button id="modal-cancel" class="btn btn-secondary btn-sm">取消</button>
+          <button id="modal-confirm" class="btn btn-primary btn-sm">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Receive Modal ===== -->
+    <div class="modal-overlay" id="receive-modal">
+      <div class="modal" style="text-align: center;">
+        <h3 class="modal-title">接收 ETH</h3>
+        <div style="margin: 16px 0;">
+          <div class="account-avatar" style="width: 64px; height: 64px; font-size: 28px; margin: 0 auto 12px; border-radius: 50%; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center;">💎</div>
+          <p id="receive-address" style="font-size: 12px; color: var(--text-secondary); word-break: break-all; font-family: 'SF Mono', monospace; padding: 12px; background: var(--bg-input); border-radius: var(--radius-md); border: 1px solid var(--border);"></p>
+        </div>
+        <button id="btn-copy-receive-address" class="btn btn-primary btn-full btn-sm">📋 复制地址</button>
+        <button id="btn-close-receive" class="btn btn-secondary btn-full btn-sm" style="margin-top: 8px;">关闭</button>
+      </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== Loading ===== -->
+    <div class="loading-overlay" id="loading">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">处理中...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

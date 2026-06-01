@@ -1,0 +1,19 @@
+{
+  "name": "qianbaoweb3",
+  "version": "1.0.0",
+  "description": "Web3 钱包 Chrome 扩展 — 管理助记词，连接 dApp",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^12.0.2",
+    "webpack": "^5.97.0",
+    "webpack-cli": "^6.0.0"
+  }
+}
