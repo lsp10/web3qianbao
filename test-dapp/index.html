@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QianBao Web3 - dApp 测试页面</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0d0e12;
+      --card-bg: rgba(22, 24, 33, 0.8);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary-color: #7b61ff;
+      --primary-hover: #684ff2;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --success-color: #10b981;
+      --error-color: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(123, 97, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 30%, var(--primary-color) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    main {
+      width: 100%;
+      max-width: 800px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      main {
+        grid-template-columns: 1.2fr 1fr;
+      }
+      .span-2 {
+        grid-column: span 2;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      transition: border-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(123, 97, 255, 0.3);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 18px;
+      background: var(--primary-color);
+      border-radius: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(123, 97, 255, 0.2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background: var(--card-border);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(123, 97, 255, 0.1);
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .status-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      word-break: break-all;
+      color: var(--text-muted);
+    }
+
+    .status-value.connected {
+      color: var(--success-color);
+      font-weight: 600;
+    }
+
+    .status-value.disconnected {
+      color: var(--error-color);
+      font-weight: 600;
+    }
+
+    .console {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      max-height: 250px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #a78bfa;
+    }
+
+    .console-entry {
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      padding-bottom: 0.5rem;
+    }
+
+    .console-time {
+      color: var(--text-muted);
+      margin-right: 0.5rem;
+    }
+
+    .console-success {
+      color: var(--success-color);
+    }
+
+    .console-error {
+      color: var(--error-color);
+    }
+
+    .console-info {
+      color: #60a5fa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-primary {
+      background: rgba(123, 97, 255, 0.2);
+      color: var(--primary-color);
+      border: 1px solid rgba(123, 97, 255, 0.3);
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .flex-row button {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>QianBao Web3 dApp 测试面板</h1>
+    <p class="subtitle">一个用于本地调试、测试钱包连接、消息签名和交易发送的测试环境。</p>
+  </header>
+
+  <main>
+    <!-- 状态面板 -->
+    <div class="card">
+      <h2>钱包状态</h2>
+      <div class="status-item">
+        <span>连接状态</span>
+        <span id="connection-status" class="status-value disconnected">未连接</span>
+      </div>
+      <div class="status-item">
+        <span>当前账户</span>
+        <span id="current-account" class="status-value">-</span>
+      </div>
+      <div class="status-item">
+        <span>当前网络 (Chain ID)</span>
+        <span id="current-chain" class="status-value">-</span>
+      </div>
+      <div class="status-item" style="margin-bottom: 1rem;">
+        <span>EIP-6963 探测</span>
+        <span id="eip6963-detected" class="status-value"><span class="badge badge-primary">已启动监听</span></span>
+      </div>
+      <button id="btn-connect" style="margin-top: 1rem;">连接钱包 (eth_requestAccounts)</button>
+    </div>
+
+    <!-- 消息签名测试 -->
+    <div class="card">
+      <h2>消息签名</h2>
+      <div class="form-group">
+        <label for="sign-message-input">签名消息内容</label>
+        <textarea id="sign-message-input" placeholder="请输入要签名的明文内容...">Hello, QianBao Web3! 这是一条用于测试签名的消息。</textarea>
+      </div>
+      <button id="btn-sign" disabled>签名消息 (personal_sign)</button>
+    </div>
+
+    <!-- 交易发送测试 -->
+    <div class="card span-2">
+      <h2>发送交易 (模拟)</h2>
+      <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.2rem;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="tx-to">接收方地址 (To)</label>
+          <input type="text" id="tx-to" placeholder="0x..." value="0x70997970C51812dc3A010C7d01b50e0d17dc79C8">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="tx-value">发送数量 (Value in ETH)</label>
+          <input type="number" id="tx-value" placeholder="0.0" step="0.001" value="0.01">
+        </div>
+      </div>
+      <button id="btn-send-tx" disabled>发送交易 (eth_sendTransaction)</button>
+    </div>
+
+    <!-- 控制台日志 -->
+    <div class="card span-2">
+      <h2>日志控制台</h2>
+      <div id="console-logs" class="console">等待操作...</div>
+    </div>
+  </main>
+
+  <script>
+    const btnConnect = document.getElementById('btn-connect');
+    const btnSign = document.getElementById('btn-sign');
+    const btnSendTx = document.getElementById('btn-send-tx');
+    const txtMessage = document.getElementById('sign-message-input');
+    const txtTo = document.getElementById('tx-to');
+    const txtValue = document.getElementById('tx-value');
+    
+    const statusConnection = document.getElementById('connection-status');
+    const statusAccount = document.getElementById('current-account');
+    const statusChain = document.getElementById('current-chain');
+    const consoleLogs = document.getElementById('console-logs');
+
+    // 辅助日志记录
+    function log(message, type = 'info') {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const entry = document.createElement('div');
+      entry.className = 'console-entry';
+      
+      let typeClass = 'console-info';
+      if (type === 'success') typeClass = 'console-success';
+      if (type === 'error') typeClass = 'console-error';
+      
+      entry.innerHTML = `<span class="console-time">[${timeStr}]</span><span class="${typeClass}">${message}</span>`;
+      
+      if (consoleLogs.innerHTML === '等待操作...') {
+        consoleLogs.innerHTML = '';
+      }
+      consoleLogs.appendChild(entry);
+      consoleLogs.scrollTop = consoleLogs.scrollHeight;
+    }
+
+    // 格式化地址
+    function shortenAddress(addr) {
+      if (!addr) return '-';
+      return addr.slice(0, 8) + '...' + addr.slice(-6);
+    }
+
+    // 检测 Provider 状态并更新 UI
+    async function updateProviderState() {
+      if (!window.ethereum) {
+        log('未检测到 window.ethereum，请确保已安装钱包并开启', 'error');
+        return;
+      }
+
+      try {
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        statusChain.textContent = `${chainId} (十进制: ${parseInt(chainId, 16)})`;
+        
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts && accounts.length > 0) {
+          statusConnection.textContent = '已连接';
+          statusConnection.className = 'status-value connected';
+          statusAccount.textContent = accounts[0];
+          statusAccount.title = accounts[0];
+          
+          btnSign.disabled = false;
+          btnSendTx.disabled = false;
+          btnConnect.textContent = '重新连接';
+          log(`钱包已连接，当前账户: ${shortenAddress(accounts[0])}`, 'success');
+        } else {
+          statusConnection.textContent = '未授权连接';
+          statusConnection.className = 'status-value disconnected';
+          statusAccount.textContent = '-';
+          
+          btnSign.disabled = true;
+          btnSendTx.disabled = true;
+          btnConnect.textContent = '连接钱包 (eth_requestAccounts)';
+          log('钱包未授权连接，请点击连接按钮授权', 'info');
+        }
+      } catch (err) {
+        log(`读取钱包状态出错: ${err.message}`, 'error');
+      }
+    }
+
+    // 监听事件
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        log(`事件触发: accountsChanged -> ${JSON.stringify(accounts)}`, 'info');
+        updateProviderState();
+      });
+
+      window.ethereum.on('chainChanged', (chainId) => {
+        log(`事件触发: chainChanged -> ${chainId}`, 'info');
+        updateProviderState();
+      });
+
+      window.ethereum.on('connect', (connectInfo) => {
+        log(`事件触发: connect -> ${JSON.stringify(connectInfo)}`, 'info');
+      });
+
+      window.ethereum.on('disconnect', (error) => {
+        log(`事件触发: disconnect -> ${JSON.stringify(error)}`, 'error');
+        updateProviderState();
+      });
+    }
+
+    // 1. 连接钱包
+    btnConnect.addEventListener('click', async () => {
+      if (!window.ethereum) {
+        alert('请先安装并启用 QianBao Web3 钱包扩展！');
+        return;
+      }
+      log('发起连接请求: eth_requestAccounts...');
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        log(`成功获取账户: ${JSON.stringify(accounts)}`, 'success');
+        updateProviderState();
+      } catch (err) {
+        log(`连接请求被拒绝或失败: ${err.message} (代码: ${err.code})`, 'error');
+      }
+    });
+
+    // 2. 签名消息
+    btnSign.addEventListener('click', async () => {
+      const message = txtMessage.value;
+      if (!message) {
+        log('签名内容不能为空', 'error');
+        return;
+      }
+      
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (!accounts || accounts.length === 0) {
+        log('请先连接钱包', 'error');
+        return;
+      }
+
+      log(`发起 personal_sign 请求, 签名内容: "${message}"...`);
+      try {
+        // 对于 personal_sign，参数顺序为: [message, address]
+        const hexMsg = '0x' + Array.from(new TextEncoder().encode(message)).map(b => b.toString(16).padStart(2, '0')).join('');
+        const signature = await window.ethereum.request({
+          method: 'personal_sign',
+          params: [hexMsg, accounts[0]]
+        });
+        log(`签名成功! 签名哈希:\n${signature}`, 'success');
+      } catch (err) {
+        log(`签名请求失败: ${err.message} (代码: ${err.code})`, 'error');
+      }
+    });
+
+    // 3. 发送模拟交易
+    btnSendTx.addEventListener('click', async () => {
+      const to = txtTo.value.trim();
+      const amount = txtValue.value;
+
+      if (!to || to.length !== 42) {
+        log('请输入有效的 42 位接收方以太坊地址', 'error');
+        return;
+      }
+
+      if (!amount || parseFloat(amount) <= 0) {
+        log('金额必须大于 0', 'error');
+        return;
+      }
+
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (!accounts || accounts.length === 0) {
+        log('请先连接钱包', 'error');
+        return;
+      }
+
+      const valueWei = BigInt(Math.round(parseFloat(amount) * 1e18));
+      const txParams = {
+        from: accounts[0],
+        to: to,
+        value: '0x' + valueWei.toString(16),
+        gas: '0x5208' // 21000
+      };
+
+      log(`发起以太坊交易请求 (eth_sendTransaction) 往 ${shortenAddress(to)} 发送 ${amount} ETH...`);
+      try {
+        const txHash = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [txParams]
+        });
+        log(`交易提交成功! 交易哈希 (Tx Hash): ${txHash}`, 'success');
+      } catch (err) {
+        log(`交易发送失败: ${err.message} (代码: ${err.code})`, 'error');
+      }
+    });
+
+    // 监听 EIP-6963 广播
+    window.addEventListener('eip6963:announceProvider', (event) => {
+      const detail = event.detail;
+      log(`EIP-6963 探测到 Provider: ${detail.info.name} (UUID: ${detail.info.uuid})`, 'info');
+    });
+
+    // 初始化运行一次
+    setTimeout(() => {
+      if (window.ethereum) {
+        log('已探测到 window.ethereum，正在初始化状态...', 'info');
+        updateProviderState();
+      } else {
+        log('未检测到以太坊环境，请安装并在 Chrome 中开启 QianBao Web3 扩展程序。', 'info');
+      }
+    }, 500);
+  </script>
+</body>
+</html>
