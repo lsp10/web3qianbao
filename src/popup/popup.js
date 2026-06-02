@@ -468,6 +468,11 @@ async function loadDashboard() {
     loadBalance(addr);
   } catch (e) {
     console.error('加载 Dashboard 失败:', e);
+    // 如果是因为钱包被锁定（Service Worker 重启导致），自动跳转到锁定页面
+    if (e.message && e.message.includes('锁定')) {
+      showToast('钱包已锁定，请重新解锁', 'info');
+      navigateTo('lock');
+    }
   }
 }
 
