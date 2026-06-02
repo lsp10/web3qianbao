@@ -217,6 +217,7 @@ function bindEvents() {
 
   // === Lock Screen ===
   document.getElementById('btn-unlock').addEventListener('click', handleUnlock);
+  document.getElementById('btn-reset-wallet').addEventListener('click', handleResetWallet);
   document.getElementById('lock-password').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleUnlock();
   });
@@ -395,6 +396,27 @@ async function handleUnlock() {
     document.getElementById('lock-password').value = '';
     navigateTo('dashboard');
     loadDashboard();
+  } catch (e) {
+    hideLoading();
+    showToast(e.message, 'error');
+  }
+}
+
+async function handleResetWallet() {
+  const confirmed = await showModal(
+    '危险操作：重置钱包',
+    '重置钱包将会清空本地存储的所有账户和加密数据，且无法找回！请确保您已经备份了助记词。是否确认重置？'
+  );
+
+  if (!confirmed.confirmed) return;
+
+  showLoading('正在重置钱包...');
+  try {
+    await chrome.storage.local.clear();
+    showToast('重置成功，正在重启插件...', 'success');
+    setTimeout(() => {
+      chrome.runtime.reload();
+    }, 1000);
   } catch (e) {
     hideLoading();
     showToast(e.message, 'error');
