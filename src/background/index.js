@@ -11,9 +11,13 @@ import { ethers } from 'ethers';
 // ========== 初始化 ==========
 
 async function initialize() {
-  await walletManager.init();
-  await networkManager.init();
-  console.log('[QianBao] Service Worker 已初始化, 状态:', walletManager.state);
+  try {
+    await walletManager.init();
+    await networkManager.init();
+    console.log('[QianBao] Service Worker 已初始化, 状态:', walletManager.state);
+  } catch (error) {
+    console.error('[QianBao] Service Worker 初始化失败:', error);
+  }
 }
 
 initialize();
