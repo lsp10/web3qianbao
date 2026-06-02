@@ -58,9 +58,11 @@ function initPages() {
 }
 
 function navigateTo(pageName) {
-  if (currentPage) {
-    currentPage.classList.remove('active');
-  }
+  // 移除所有页面的 active 类，防止页面层叠冲突
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+  });
+  
   const page = pages[pageName];
   if (page) {
     page.classList.add('active');
