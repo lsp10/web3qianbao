@@ -210,12 +210,23 @@
 
   // ========== 注入 window.ethereum ==========
 
-  // 使用 defineProperty 确保优先级
-  Object.defineProperty(window, 'ethereum', {
-    value: provider,
-    writable: false,
-    configurable: true,
-  });
+  // 使用 try-catch 包装 defineProperty，防止与其他钱包插件冲突时抛出 "Cannot redefine property" 导致脚本崩溃
+  try {
+    Object.defineProperty(window, 'ethereum', {
+      value: provider,
+      writable: true,     // 设置为 true，允许某些 dApp 在测试中对其进行修改或 mock，提升兼容性
+      configurable: true, // 允许重新配置
+      enumerable: true,   // 允许在 window 上枚举出来
+    });
+  } catch (error) {
+    console.warn('[QianBao Web3] 无法通过 defineProperty 注入 window.ethereum (可能已被其他钱包锁定):', error);
+    try {
+      // 尝试直接赋值作为降级方案
+      window.ethereum = provider;
+    } catch (assignError) {
+      console.error('[QianBao Web3] 降级直接赋值 window.ethereum 也失败:', assignError);
+    }
+  }
 
   // EIP-6963: 公告 provider
   window.dispatchEvent(
