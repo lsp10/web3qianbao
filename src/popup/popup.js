@@ -152,6 +152,9 @@ function updatePasswordStrength(password) {
 async function init() {
   initPages();
 
+  // 先绑定事件，确保按钮可以立即响应
+  bindEvents();
+
   // 检查是否是审批页面
   const hash = window.location.hash;
   if (hash.startsWith('#approve/')) {
@@ -160,27 +163,38 @@ async function init() {
     return;
   }
 
-  // 检查钱包状态
-  try {
-    const result = await sendMessage(MSG.GET_WALLET_STATE);
-    switch (result.state) {
-      case WALLET_STATE.UNINITIALIZED:
-        navigateTo('welcome');
-        break;
-      case WALLET_STATE.LOCKED:
-        navigateTo('lock');
-        break;
-      case WALLET_STATE.UNLOCKED:
-        navigateTo('dashboard');
-        await loadDashboard();
-        break;
+  // 检查钱包状态（带重试，因为 Service Worker 可能还未就绪）
+  let retries = 3;
+  while (retries > 0) {
+    try {
+      const result = await sendMessage(MSG.GET_WALLET_STATE);
+      switch (result.state) {
+        case WALLET_STATE.UNINITIALIZED:
+          navigateTo('welcome');
+          break;
+        case WALLET_STATE.LOCKED:
+          navigateTo('lock');
+          break;
+        case WALLET_STATE.UNLOCKED:
+          navigateTo('dashboard');
+          await loadDashboard();
+          break;
+        default:
+          navigateTo('welcome');
+      }
+      return; // 成功后退出
+    } catch (e) {
+      retries--;
+      console.warn('[QianBao Popup] 连接后台失败, 剩余重试:', retries, e.message);
+      if (retries > 0) {
+        await new Promise(r => setTimeout(r, 500)); // 等待 500ms 后重试
+      }
     }
-  } catch (e) {
-    navigateTo('welcome');
   }
 
-  // 绑定事件
-  bindEvents();
+  // 所有重试都失败，默认显示欢迎页
+  console.warn('[QianBao Popup] 无法连接后台 Service Worker，显示欢迎页');
+  navigateTo('welcome');
 }
 
 // ========== 事件绑定 ==========

@@ -110,6 +110,11 @@ html, body {
   display: flex;
 }
 
+/* 安全兜底：确保非激活页面绝对不可见，防止子类选择器的 display:flex 覆盖 */
+.page:not(.active) {
+  display: none !important;
+}
+
 @keyframes pageSlideIn {
   from {
     opacity: 0;
@@ -478,7 +483,7 @@ textarea.input-field {
 
 /* ========== Welcome Page ========== */
 .welcome-page {
-  display: flex;
+  /* display: flex 由 .page.active 统一控制 */
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -563,7 +568,7 @@ textarea.input-field {
 
 /* ========== Create / Import Page ========== */
 .form-page {
-  display: flex;
+  /* display: flex 由 .page.active 统一控制 */
   flex-direction: column;
   height: 100%;
 }
@@ -666,7 +671,7 @@ textarea.input-field {
 
 /* ========== Dashboard ========== */
 .dashboard {
-  display: flex;
+  /* display: flex 由 .page.active 统一控制 */
   flex-direction: column;
   height: 100%;
 }
@@ -932,7 +937,7 @@ textarea.input-field {
 
 /* ========== Approve Page ========== */
 .approve-page {
-  display: flex;
+  /* display: flex 由 .page.active 统一控制 */
   flex-direction: column;
   height: 100%;
 }
@@ -1221,7 +1226,7 @@ textarea.input-field {
 
 /* ========== Lock Screen ========== */
 .lock-screen {
-  display: flex;
+  /* display: flex 由 .page.active 统一控制 */
   flex-direction: column;
   align-items: center;
   justify-content: center;
