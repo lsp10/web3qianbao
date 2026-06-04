@@ -9,7 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "ethers": "^6.13.0"
+    "ethers": "^6.13.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^12.0.2",

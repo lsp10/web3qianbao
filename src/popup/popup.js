@@ -4,6 +4,7 @@
  */
 import { MSG, WALLET_STATE } from '../shared/message-types.js';
 import { NETWORKS } from '../shared/constants.js';
+import QRCode from 'qrcode';
 
 // ========== 工具函数 ==========
 
@@ -685,6 +686,21 @@ function showReceiveModal() {
   const addr = document.getElementById('account-address').dataset.address;
   document.getElementById('receive-address').textContent = addr;
   document.getElementById('receive-modal').classList.add('show');
+
+  // 渲染二维码
+  const canvas = document.getElementById('receive-qrcode');
+  if (canvas && addr) {
+    QRCode.toCanvas(canvas, addr, {
+      width: 140,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    }, function (error) {
+      if (error) console.error('生成二维码失败:', error);
+    });
+  }
 }
 
 // ========== Settings ==========
