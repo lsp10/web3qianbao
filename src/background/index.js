@@ -201,10 +201,13 @@ async function handleMessage(message, sender) {
 function notifyAllTabs(type, data) {
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach((tab) => {
-      try {
-        chrome.tabs.sendMessage(tab.id, { type, data });
-      } catch (e) {
-        // 忽略无法通信的 tab
+      if (tab.url && (tab.url.startsWith('http') || tab.url.startsWith('file'))) {
+        chrome.tabs.sendMessage(tab.id, { type, data }, () => {
+          // 显式访问 chrome.runtime.lastError 忽略未捕获期约报错（如 tab 暂未注入 content script 等）
+          if (chrome.runtime.lastError) {
+            // 忽略错误
+          }
+        });
       }
     });
   });
