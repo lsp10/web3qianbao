@@ -464,6 +464,25 @@ async function loadDashboard() {
     // 更新网络
     document.getElementById('network-name').textContent = networkData.chainName;
 
+    // 动态更新代币符号与视觉颜色
+    const symbol = networkData.symbol || 'ETH';
+    document.querySelectorAll('.balance-symbol').forEach(el => el.textContent = symbol);
+    
+    const sendTitle = document.getElementById('send-page-title');
+    if (sendTitle) sendTitle.textContent = `发送 ${symbol}`;
+    
+    const sendAmountLabel = document.getElementById('send-amount-label');
+    if (sendAmountLabel) sendAmountLabel.textContent = `金额 (${symbol})`;
+    
+    const receiveTitle = document.getElementById('receive-title');
+    if (receiveTitle) receiveTitle.textContent = `接收 ${symbol}`;
+
+    const networkDot = document.querySelector('#network-selector .network-dot');
+    if (networkDot && networkData.color) {
+      networkDot.style.background = networkData.color;
+      networkDot.style.boxShadow = `0 0 8px ${networkData.color}`;
+    }
+
     // 加载余额
     loadBalance(addr);
   } catch (e) {
@@ -501,7 +520,7 @@ function toggleNetworkDropdown() {
   const networks = Object.entries(NETWORKS);
   dropdown.innerHTML = networks.map(([id, net]) => `
     <div class="network-option" data-chain-id="${id}">
-      <span class="network-dot" style="${id === '1' ? '' : 'background: #FFA502; box-shadow: 0 0 8px rgba(255, 165, 2, 0.5);'}"></span>
+      <span class="network-dot" style="background: ${net.color || '#3498db'}; box-shadow: 0 0 8px ${net.color || '#3498db'};"></span>
       <span>${net.chainName}</span>
     </div>
   `).join('');
@@ -619,9 +638,18 @@ async function handleSendTransaction() {
     return;
   }
 
+  // 动态获取当前网络代币符号
+  let symbol = 'ETH';
+  try {
+    const networkData = await sendMessage(MSG.GET_NETWORK);
+    symbol = networkData.symbol || 'ETH';
+  } catch (e) {
+    console.error('获取网络配置失败:', e);
+  }
+
   const confirmed = await showModal(
     '确认发送',
-    `发送 ${amount} ETH 到\n${shortenAddress(to)}`
+    `发送 ${amount} ${symbol} 到\n${shortenAddress(to)}`
   );
 
   if (!confirmed.confirmed) return;
@@ -720,6 +748,15 @@ async function loadApprovalPage() {
 
     document.getElementById('approve-origin-text').textContent = request.origin || '未知';
 
+    // 动态获取当前网络代币符号
+    let symbol = 'ETH';
+    try {
+      const networkData = await sendMessage(MSG.GET_NETWORK);
+      symbol = networkData.symbol || 'ETH';
+    } catch (e) {
+      console.error('获取网络配置失败:', e);
+    }
+
     if (request.type === 'connect') {
       document.getElementById('approve-title').textContent = '连接请求';
       document.getElementById('approve-detail-text').textContent =
@@ -735,7 +772,7 @@ async function loadApprovalPage() {
         </div>
         <div class="approve-detail">
           <div class="approve-detail-label">金额</div>
-          <div class="approve-detail-value">${tx.value ? (parseInt(tx.value, 16) / 1e18).toFixed(6) + ' ETH' : '0 ETH'}</div>
+          <div class="approve-detail-value">${tx.value ? (parseInt(tx.value, 16) / 1e18).toFixed(6) + ' ' + symbol : '0 ' + symbol}</div>
         </div>
         ${tx.data && tx.data !== '0x' ? `
           <div class="approve-detail">

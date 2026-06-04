@@ -166,7 +166,7 @@
     <div id="page-send" class="page form-page">
       <div class="page-header">
         <button class="back-btn" data-back="dashboard">←</button>
-        <h2 class="page-title">发送 ETH</h2>
+        <h2 class="page-title" id="send-page-title">发送 ETH</h2>
       </div>
       <div class="send-form">
         <div class="input-group">
@@ -174,7 +174,7 @@
           <input type="text" id="send-to" class="input-field" placeholder="0x...">
         </div>
         <div class="input-group">
-          <label class="input-label">金额 (ETH)</label>
+          <label class="input-label" id="send-amount-label">金额 (ETH)</label>
           <input type="number" id="send-amount" class="input-field" placeholder="0.0" step="0.0001" min="0">
         </div>
         <div class="gas-info">
@@ -289,7 +289,7 @@
     <!-- ===== Receive Modal ===== -->
     <div class="modal-overlay" id="receive-modal">
       <div class="modal" style="text-align: center;">
-        <h3 class="modal-title">接收 ETH</h3>
+        <h3 class="modal-title" id="receive-title">接收 ETH</h3>
         <div style="margin: 16px 0;">
           <div class="account-avatar" style="width: 64px; height: 64px; font-size: 28px; margin: 0 auto 12px; border-radius: 50%; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center;">💎</div>
           <p id="receive-address" style="font-size: 12px; color: var(--text-secondary); word-break: break-all; font-family: 'SF Mono', monospace; padding: 12px; background: var(--bg-input); border-radius: var(--radius-md); border: 1px solid var(--border);"></p>

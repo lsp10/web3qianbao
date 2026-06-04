@@ -9,6 +9,7 @@ export const NETWORKS = {
     symbol: 'ETH',
     decimals: 18,
     blockExplorer: 'https://etherscan.io',
+    color: '#3498db',
   },
   11155111: {
     chainId: '0xaa36a7',
@@ -17,6 +18,25 @@ export const NETWORKS = {
     symbol: 'ETH',
     decimals: 18,
     blockExplorer: 'https://sepolia.etherscan.io',
+    color: '#e74c3c',
+  },
+  56: {
+    chainId: '0x38',
+    chainName: 'BNB Smart Chain',
+    rpcUrl: 'https://bsc-rpc.publicnode.com',
+    symbol: 'BNB',
+    decimals: 18,
+    blockExplorer: 'https://bscscan.com',
+    color: '#f1c40f',
+  },
+  97: {
+    chainId: '0x61',
+    chainName: 'BSC Testnet',
+    rpcUrl: 'https://bsc-testnet-rpc.publicnode.com',
+    symbol: 'tBNB',
+    decimals: 18,
+    blockExplorer: 'https://testnet.bscscan.com',
+    color: '#e67e22',
   },
 };
 
