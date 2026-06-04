@@ -12,6 +12,8 @@ import { ethers } from 'ethers';
 
 async function initialize() {
   try {
+    // 延迟 50ms 启动，防止冷启动或高频重载时浏览器 storage API 上下文未完全就绪而抛错
+    await new Promise(resolve => setTimeout(resolve, 50));
     await walletManager.init();
     await networkManager.init();
     console.log('[QianBao] Service Worker 已初始化, 状态:', walletManager.state);
