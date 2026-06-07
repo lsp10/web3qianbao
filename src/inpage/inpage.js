@@ -239,30 +239,35 @@
       }
     }
 
-    // 如果 window.ethereum 已经存在，需要检查其属性描述符
-    if (existing) {
-      const desc = Object.getOwnPropertyDescriptor(windowRef, 'ethereum');
-      if (desc) {
-        // 如果该属性是不可配置的 (configurable: false)
-        if (!desc.configurable) {
-          if (desc.writable) {
-            // 如果是可写的，直接通过赋值进行覆盖，避免调用 defineProperty 触发 TypeError
-            try {
-              windowRef.ethereum = newProvider;
-              console.log('[QianBao Web3] window.ethereum 已通过直接赋值覆盖 (非配置方式)');
-            } catch (assignError) {
-              console.warn('[QianBao Web3] 直接赋值 window.ethereum 失败:', assignError);
-            }
-          } else {
-            // 既不可配置也不可写，说明被其他钱包完全锁定
-            console.warn('[QianBao Web3] window.ethereum 已被其他钱包锁定且不可配置/写入，已跳过 redefineProperty。可使用 EIP-6963 方式发现钱包。');
-          }
-          return; // 不可配置的情况下，直接返回，不再执行 Object.defineProperty
+    // 寻找 window.ethereum 的属性描述符（包括从原型链获取）
+    let desc = Object.getOwnPropertyDescriptor(windowRef, 'ethereum');
+    if (!desc && existing) {
+      try {
+        let proto = Object.getPrototypeOf(windowRef);
+        while (proto) {
+          desc = Object.getOwnPropertyDescriptor(proto, 'ethereum');
+          if (desc) break;
+          proto = Object.getPrototypeOf(proto);
         }
+      } catch (e) {
+        // 忽略可能发生的安全限制异常
       }
     }
 
-    // 如果没有冲突，或者属性是可配置的，则使用 defineProperty 进行注入
+    // 判断是否完全被锁定（无法重新配置且无法直接赋值）
+    if (desc) {
+      const isConfigurable = desc.configurable;
+      const isWritable = desc.writable || (typeof desc.set === 'function');
+      const hasGetterOnly = (typeof desc.get === 'function') && (typeof desc.set !== 'function');
+
+      if (!isConfigurable && (hasGetterOnly || !isWritable)) {
+        // 既不可配置，又没有 setter（只有 getter）或者不可写，说明被完全锁定，直接跳过注入，避免触发任何错误
+        console.log('[QianBao Web3] window.ethereum 已被其他钱包锁定，跳过注入。已通过 EIP-6963 协议提供服务。');
+        return;
+      }
+    }
+
+    // 如果没有冲突，或者属性是可配置的，则尝试使用 defineProperty 进行注入
     try {
       Object.defineProperty(windowRef, 'ethereum', {
         value: newProvider,
@@ -271,12 +276,13 @@
         enumerable: true,   // 允许在 window 上枚举出来
       });
     } catch (error) {
-      console.warn('[QianBao Web3] 无法通过 defineProperty 注入 window.ethereum:', error);
+      // 如果 defineProperty 失败，尝试直接赋值作为降级方案
       try {
-        // 尝试直接赋值作为最后的降级方案
         windowRef.ethereum = newProvider;
+        console.log('[QianBao Web3] window.ethereum 已通过直接赋值覆盖并注入 ✓');
       } catch (assignError) {
-        console.error('[QianBao Web3] 降级直接赋值 window.ethereum 也失败:', assignError);
+        // 如果依然失败，说明该属性只读或有只读 getter，仅作普通日志记录，不抛出 console.error 影响用户/开发者
+        console.log('[QianBao Web3] 降级直接赋值 window.ethereum 失败（可能已被其他钱包锁定）:', assignError.message);
       }
     }
   }
