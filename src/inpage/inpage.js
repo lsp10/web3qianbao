@@ -210,23 +210,78 @@
 
   // ========== 注入 window.ethereum ==========
 
-  // 使用 try-catch 包装 defineProperty，防止与其他钱包插件冲突时抛出 "Cannot redefine property" 导致脚本崩溃
-  try {
-    Object.defineProperty(window, 'ethereum', {
-      value: provider,
-      writable: true,     // 设置为 true，允许某些 dApp 在测试中对其进行修改或 mock，提升兼容性
-      configurable: true, // 允许重新配置
-      enumerable: true,   // 允许在 window 上枚举出来
-    });
-  } catch (error) {
-    console.warn('[QianBao Web3] 无法通过 defineProperty 注入 window.ethereum (可能已被其他钱包锁定):', error);
+  function injectProvider(windowRef, newProvider) {
+    const existing = windowRef.ethereum;
+
+    // 如果已经注入过同一个 provider，无需重复操作
+    if (existing && existing.isQianBao) {
+      return;
+    }
+
+    // 构造 providers 列表，支持多钱包共存 (如 Coinbase Wallet / MetaMask 的做法)
+    let providers = [newProvider];
+    if (existing) {
+      if (Array.isArray(existing.providers)) {
+        providers = providers.concat(existing.providers.filter(p => p !== newProvider));
+      } else {
+        providers.push(existing);
+      }
+    }
+
+    newProvider.providers = providers;
+
+    // 尝试在现有 provider 上挂载 providers 属性，使其保持同步
+    if (existing && typeof existing === 'object') {
+      try {
+        existing.providers = providers;
+      } catch (e) {
+        // 忽略可能由于对象冻结 (freeze) 导致的赋值失败
+      }
+    }
+
+    // 如果 window.ethereum 已经存在，需要检查其属性描述符
+    if (existing) {
+      const desc = Object.getOwnPropertyDescriptor(windowRef, 'ethereum');
+      if (desc) {
+        // 如果该属性是不可配置的 (configurable: false)
+        if (!desc.configurable) {
+          if (desc.writable) {
+            // 如果是可写的，直接通过赋值进行覆盖，避免调用 defineProperty 触发 TypeError
+            try {
+              windowRef.ethereum = newProvider;
+              console.log('[QianBao Web3] window.ethereum 已通过直接赋值覆盖 (非配置方式)');
+            } catch (assignError) {
+              console.warn('[QianBao Web3] 直接赋值 window.ethereum 失败:', assignError);
+            }
+          } else {
+            // 既不可配置也不可写，说明被其他钱包完全锁定
+            console.warn('[QianBao Web3] window.ethereum 已被其他钱包锁定且不可配置/写入，已跳过 redefineProperty。可使用 EIP-6963 方式发现钱包。');
+          }
+          return; // 不可配置的情况下，直接返回，不再执行 Object.defineProperty
+        }
+      }
+    }
+
+    // 如果没有冲突，或者属性是可配置的，则使用 defineProperty 进行注入
     try {
-      // 尝试直接赋值作为降级方案
-      window.ethereum = provider;
-    } catch (assignError) {
-      console.error('[QianBao Web3] 降级直接赋值 window.ethereum 也失败:', assignError);
+      Object.defineProperty(windowRef, 'ethereum', {
+        value: newProvider,
+        writable: true,     // 设置为 true，允许某些 dApp 在测试中对其进行修改或 mock，提升兼容性
+        configurable: true, // 允许重新配置
+        enumerable: true,   // 允许在 window 上枚举出来
+      });
+    } catch (error) {
+      console.warn('[QianBao Web3] 无法通过 defineProperty 注入 window.ethereum:', error);
+      try {
+        // 尝试直接赋值作为最后的降级方案
+        windowRef.ethereum = newProvider;
+      } catch (assignError) {
+        console.error('[QianBao Web3] 降级直接赋值 window.ethereum 也失败:', assignError);
+      }
     }
   }
+
+  injectProvider(window, provider);
 
   // EIP-6963: 公告 provider
   window.dispatchEvent(
